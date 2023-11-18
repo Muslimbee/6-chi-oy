@@ -1,57 +1,46 @@
+import { useEffect, useState } from "react";
+import "./App.css";
+import Navbar from "./components/Navbar";
+import SignIn from "./components/SignIn";
 
-import { useEffect, useState } from 'react'
-import './App.css'
-import Loading from './components/Loading'
-import Tours from './components/Tours'
-
-
-
-const url = 'https://fakestoreapi.com/products'
-
-
+const getLocalStorage = () => {
+  return localStorage.getItem("users")
+    ? JSON.parse(localStorage.getItem("users"))
+    : [];
+};
 
 function App() {
+  const [isSigning, setSigning] = useState(false);
 
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [user, setUser] = useState(getLocalStorage());
 
-   const  [list, setList] = useState([])
-   const [loading, setLoading] = useState(true)
+  const handSignIn = () => {
+    const newUser = { title: name, mail: email };
+    setUser([...user, newUser]); 
+  };
+  
 
-   const fetchData = async () => {
-    setLoading(true)
-    try{
-      const resp = await fetch(url);
-      const data = await resp.json();
-      setList(data)
-      setLoading(false)
-    }catch(error){
-      console.error(error)
-      setLoading(false)
-
-    }
-   }
   useEffect(() => {
-    fetchData()
-  },[]);
-
-  //  if(loading){
-  //   return <Loading />
-  //  }
+    localStorage.setItem('users', JSON.stringify(user))
+  }, [user])
   return (
     <>
-      {/* <h2>
-        {list.map((item) => {
-          return <div key={item.id}>
-            <h2>{item.title}</h2>
-            <h2>{item.description}</h2>
-            <h2>{item.price}</h2>
-            <img src={item.image} alt="" />
-          </div>
-        })}
-      </h2> */
-      <Tours list={list} />
-      }
+      <div>
+        <Navbar isSigning={isSigning} setSigning={setSigning} />
+        {isSigning && (
+          <SignIn
+            name={name}
+            setName={setName}
+            email={email}
+            setEmail={setEmail}
+            handSignIn={handSignIn}
+          />
+        )}
+      </div>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
